@@ -8,7 +8,7 @@ pipeline{
         }
         stage("Pust To Docker Hub"){
             steps{
-                withCredentials([usernameColonPassword(credentialsId: 'docker-aug', variable: '')])  {
+              withCredentials([usernamePassword(credentialsId: 'docker-credentials', passwordVariable: 'pwd', usernameVariable: 'doker_04')]) {
                     sh "docker login -u ${usr} -p ${pwd}"
                     sh "docker push chand0786/pyappeks:${env.BUILD_NUMBER}"
                 }
@@ -16,7 +16,7 @@ pipeline{
         }
         stage("Update Tag in Deployment YAML and push"){
             steps{
-                withCredentials([usernameColonPassword(credentialsId: 'GIT', variable: '')]) {
+              withCredentials([usernamePassword(credentialsId: 'shaikoushi', passwordVariable: 'pwd', usernameVariable: 'git_new')]){
                     sh """
                      git config user.name "Jenkins Server"
                      git config user.email "jenkins@automation.com"
