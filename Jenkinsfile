@@ -3,7 +3,9 @@ pipeline{
     stages{
         stage("Docker Image"){
             steps{
+          withCredentials([usernamePassword(credentialsId: 'chan_doc', passwordVariable: 'pwd', usernameVariable: 'usr')]){
                 sh "docker build -t chand0786/pyappeks:${env.BUILD_NUMBER} ."
+          }
             }
         }
         stage("Pust To Docker Hub"){
