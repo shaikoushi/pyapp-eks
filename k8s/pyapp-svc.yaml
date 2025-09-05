@@ -1,4 +1,3 @@
-# Write service manefest file for kubernetes
 apiVersion: v1
 kind: Service
 metadata:
