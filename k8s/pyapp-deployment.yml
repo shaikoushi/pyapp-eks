@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,3 +20,19 @@ spec:
           image: chand0786/pyappeks:11
           ports:
             - containerPort: 8000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pyapp-service
+  labels:
+    app: pyapp
+spec:
+  selector:
+    app: pyapp
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer
