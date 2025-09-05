@@ -27,16 +27,16 @@ pipeline {
                         
                         # Ensure we are on main branch
                         git checkout main
-                        git pull origin main
-
+    
                         # Update YAML with new image tag
                         yq e '.spec.template.spec.containers[0].image = "chand0786/pyappeks:${env.BUILD_NUMBER}"' -i ./k8s/pyapp-deployment.yml
                         
                         git add .
                         git commit -m 'Docker tag updated by Jenkins' || echo "No changes to commit"
                         
-                        git push https://${GIT_USER}:${GIT_PWD}@github.com/shaikoushi/pyapp-eks.git main
+                        git push origin main
                     """
+                    
                 }
             }
         }
