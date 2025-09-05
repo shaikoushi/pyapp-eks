@@ -1,35 +1,40 @@
 pipeline {
     agent any
     stages {
-        stage("Docker Login & Build") {
+        stage("Docker Image") {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub_pas', passwordVariable: 'PWD', usernameVariable: 'USR')]) {
-                    sh """
-                        echo $PWD | docker login -u $USR --password-stdin
-                        docker build -t chand0786/pyappeks:${env.BUILD_NUMBER} .
-                    """
-                }
+                sh "docker build -t chand0786/pyappeks:${env.BUILD_NUMBER} ."
             }
         }
+
         stage("Push To Docker Hub") {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub_pas', passwordVariable: 'PWD', usernameVariable: 'USR')]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub_pas', passwordVariable: 'DOCKER_PWD', usernameVariable: 'DOCKER_USER')]) {
                     sh """
-                        echo $PWD | docker login -u $USR --password-stdin
+                        echo "${DOCKER_PWD}" | docker login -u "${DOCKER_USER}" --password-stdin
                         docker push chand0786/pyappeks:${env.BUILD_NUMBER}
                     """
                 }
             }
         }
+
         stage("Update Tag in Deployment YAML and Push") {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'shaikoushi_git', passwordVariable: 'GIT_PWD', usernameVariable: 'GIT_USER')]) {
                     sh """
                         git config user.name "Jenkins Server"
                         git config user.email "jenkins@automation.com"
+                        
+                        # Ensure we are on main branch
+                        git checkout main
+                        git pull origin main
+
+                        # Update YAML with new image tag
                         yq e '.spec.template.spec.containers[0].image = "chand0786/pyappeks:${env.BUILD_NUMBER}"' -i ./k8s/pyapp-deployment.yml
+                        
                         git add .
-                        git commit -m 'Docker tag updated by jenkins'
+                        git commit -m 'Docker tag updated by Jenkins' || echo "No changes to commit"
+                        
                         git push https://${GIT_USER}:${GIT_PWD}@github.com/shaikoushi/pyapp-eks.git main
                     """
                 }
