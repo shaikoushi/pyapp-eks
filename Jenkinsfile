@@ -8,7 +8,7 @@ pipeline{
         }
         stage("Pust To Docker Hub"){
             steps{
-              withCredentials([usernamePassword(credentialsId: 'docker_05', passwordVariable: 'pwd', usernameVariable: 'usr')]) {
+              withCredentials([usernamePassword(credentialsId: 'chan_doc', passwordVariable: 'pwd', usernameVariable: 'usr')]) {
                     sh "docker login -u ${usr} -p ${pwd}"
                     sh "docker push chand0786/pyappeks:${env.BUILD_NUMBER}"
                 }
